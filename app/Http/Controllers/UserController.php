@@ -1,0 +1,160 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
+use App\Models\Department;
+
+class UserController extends Controller
+{
+    public function create()
+    {
+        $user = new User();
+        $roles = Role::orderBy('name')->get();
+        $departments = Department::orderBy('title')->get();
+
+        return view('users.form', [
+            'user' => $user,
+            'roles' => $roles,
+            'departments' => $departments,
+        ]);
+    }
+
+    public function edit(User $user)
+    {
+        $roles = Role::orderBy('name')->get();
+        $departments = Department::orderBy('title')->get();
+
+        return view('users.form', [
+            'user' => $user,
+            'roles' => $roles,
+            'departments' => $departments,
+        ]);
+    }
+
+    public function index(Request $request)
+    {
+        $search = $request->input('search', '');
+        $filterDepartment = $request->input('department', '');
+        $filterRole = $request->input('role', '');
+
+        $usersQuery = User::with('roles');
+
+        if ($search) {
+            $queryStr = '%' . $search . '%';
+            $usersQuery->where(function($query) use ($queryStr) {
+                $query->where('name', 'like', $queryStr)
+                      ->orWhere('email', 'like', $queryStr)
+                      ->orWhere('employee_id', 'like', $queryStr)
+                      ->orWhere('department', 'like', $queryStr);
+            });
+        }
+
+        if ($filterDepartment) {
+            $usersQuery->where('department', $filterDepartment);
+        }
+
+        if ($filterRole) {
+            $usersQuery->role($filterRole);
+        }
+
+        $users = $usersQuery->paginate(6)->withQueryString();
+
+        // Gather all Roles & Unique Departments for grids/checklists
+        $rolesList = Role::all();
+        $allDepartments = User::whereNotNull('department')
+            ->where('department', '!=', '')
+            ->distinct()
+            ->pluck('department');
+
+        return view('users.index', [
+            'users' => $users,
+            'roles' => $rolesList,
+            'allDepartments' => $allDepartments,
+            'search' => $search,
+            'filterDepartment' => $filterDepartment,
+            'filterRole' => $filterRole,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'employee_id' => 'required|string|max:50|unique:users,employee_id',
+            'password' => 'required|string|min:6',
+            'department' => 'nullable|string|max:100',
+            'contact_no' => 'nullable|string|max:50',
+            'address' => 'nullable|string',
+            'roles' => 'array',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'employee_id' => $validated['employee_id'],
+            'department' => $validated['department'] ?? null,
+            'contact_no' => $validated['contact_no'] ?? null,
+            'address' => $validated['address'] ?? null,
+        ]);
+
+        if ($request->has('roles')) {
+            $user->syncRoles($request->input('roles'));
+        }
+
+        return redirect()->route('admin.users.index')->with('message', "User '{$user->name}' created successfully.");
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'employee_id' => ['required', 'string', 'max:50', Rule::unique('users', 'employee_id')->ignore($user->id)],
+            'password' => 'nullable|string|min:6',
+            'department' => 'nullable|string|max:100',
+            'contact_no' => 'nullable|string|max:50',
+            'address' => 'nullable|string',
+            'roles' => 'array',
+        ]);
+
+        $updateData = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'employee_id' => $validated['employee_id'],
+            'department' => $validated['department'] ?? null,
+            'contact_no' => $validated['contact_no'] ?? null,
+            'address' => $validated['address'] ?? null,
+        ];
+
+        if (!empty($validated['password'])) {
+            $updateData['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($updateData);
+
+        $roles = $request->input('roles', []);
+        $user->syncRoles($roles);
+
+        return redirect()->route('admin.users.index')->with('message', "User '{$user->name}' updated successfully.");
+    }
+
+    public function destroy(User $user)
+    {
+        // Avoid deleting self
+        if ($user->id === auth()->id()) {
+            return redirect()->route('admin.users.index')->with('error', "You cannot delete your own authenticated account.");
+        }
+
+        $name = $user->name;
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('message', "User '{$name}' was deleted successfully.");
+    }
+}
