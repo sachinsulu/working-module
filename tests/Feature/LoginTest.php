@@ -30,7 +30,7 @@ class LoginTest extends TestCase
             ->set('email', 'admin@example.com')
             ->set('password', 'apanel')
             ->call('login')
-            ->assertRedirect('/');
+            ->assertRedirect('/admin');
 
         $this->assertAuthenticated();
     }
@@ -44,5 +44,16 @@ class LoginTest extends TestCase
             ->assertSet('errorMessage', 'Invalid credentials. Please try again.');
 
         $this->assertGuest();
+    }
+
+    public function test_team_user_redirects_to_admin_dashboard()
+    {
+        Livewire::test(Login::class)
+            ->set('email', 'team@example.com')
+            ->set('password', 'password')
+            ->call('login')
+            ->assertRedirect('/admin');
+
+        $this->assertAuthenticated();
     }
 }

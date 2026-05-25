@@ -24,10 +24,10 @@ class Login extends Component
             // Regenerate session to prevent fixation
             session()->regenerate();
             // Redirect based on role
-            if (auth()->user()->hasAnyRole(['super admin', 'dept head', 'mgmt'])) {
+            if (auth()->user()->hasAnyRole(['super admin', 'dept head', 'mgmt', 'team'])) {
                 return redirect()->route('admin.dashboard');
             }
-            return redirect()->route('client.dashboard');
+            return redirect()->route('admin.dashboard');
         }
 
         $this->errorMessage = 'Invalid credentials. Please try again.';

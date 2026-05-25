@@ -32,7 +32,7 @@ class ExampleTest extends TestCase
     public function test_authenticated_users_can_view_dashboard(): void
     {
         $user = User::where('email', 'admin@example.com')->first();
-        $response = $this->actingAs($user)->get('/');
+        $response = $this->actingAs($user)->get('/admin');
         $response->assertStatus(200);
     }
 }

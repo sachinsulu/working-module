@@ -13,15 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             // Admin routes – accessible by privileged roles only
-            Route::middleware(['web', 'auth', 'role:super admin|dept head|mgmt'])
+            Route::middleware(['web', 'auth', 'role:super admin|dept head|mgmt|team'])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
-
-            // Client routes – for team members
-            Route::middleware(['web', 'auth', 'role:team'])
-                ->name('client.')
-                ->group(base_path('routes/client.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
