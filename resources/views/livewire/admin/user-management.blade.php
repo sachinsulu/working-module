@@ -151,17 +151,19 @@
         </div>
     </div>
 
-    <script>
-        function userManagement() {
-            return {
-                showDeleteModal: false,
-                deletingUser: {},
-
-                openDeleteModal(user) {
-                    this.deletingUser = user;
-                    this.showDeleteModal = true;
-                }
-            };
-        }
-    </script>
 </div>
+
+<script>
+    function userManagement() {
+        return {
+            showDeleteModal: false,
+            deletingUser: {},
+
+            openDeleteModal(user) {
+                this.deletingUser = user;
+                this.showDeleteModal = true;
+            }
+        };
+    }
+</script>
+

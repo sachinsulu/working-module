@@ -83,12 +83,27 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->user()->hasRole('dept head')) {
+            $department = Department::where('head_user_id', auth()->id())->first();
+            if (!$department) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['department' => 'You must be assigned as a head of a department before adding members.']);
+            }
+            $request->merge([
+                'roles' => ['team'],
+                'department' => $department->title,
+            ]);
+        }
+
+        $selectedRole = $request->input('roles.0');
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'employee_id' => 'required|string|max:50|unique:users,employee_id',
             'password' => 'required|string|min:6',
-            'department' => 'nullable|string|max:100',
+            'department' => [Rule::requiredIf($selectedRole === 'team'), 'nullable', 'string', 'max:100'],
             'contact_no' => 'nullable|string|max:50',
             'address' => 'nullable|string',
             'roles' => 'array',
@@ -99,7 +114,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'employee_id' => $validated['employee_id'],
-            'department' => $validated['department'] ?? null,
+            'department' => $selectedRole === 'team' ? ($validated['department'] ?? null) : null,
             'contact_no' => $validated['contact_no'] ?? null,
             'address' => $validated['address'] ?? null,
         ]);
@@ -113,12 +128,27 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        if (auth()->user()->hasRole('dept head')) {
+            $department = Department::where('head_user_id', auth()->id())->first();
+            if (!$department) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['department' => 'You must be assigned as a head of a department before editing members.']);
+            }
+            $request->merge([
+                'roles' => ['team'],
+                'department' => $department->title,
+            ]);
+        }
+
+        $selectedRole = $request->input('roles.0');
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'employee_id' => ['required', 'string', 'max:50', Rule::unique('users', 'employee_id')->ignore($user->id)],
             'password' => 'nullable|string|min:6',
-            'department' => 'nullable|string|max:100',
+            'department' => [Rule::requiredIf($selectedRole === 'team'), 'nullable', 'string', 'max:100'],
             'contact_no' => 'nullable|string|max:50',
             'address' => 'nullable|string',
             'roles' => 'array',
@@ -128,7 +158,7 @@ class UserController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'employee_id' => $validated['employee_id'],
-            'department' => $validated['department'] ?? null,
+            'department' => $selectedRole === 'team' ? ($validated['department'] ?? null) : null,
             'contact_no' => $validated['contact_no'] ?? null,
             'address' => $validated['address'] ?? null,
         ];

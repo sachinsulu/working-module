@@ -61,19 +61,21 @@
         </div>
     </div>
 
-    <script>
-        function departmentManagement() {
-            return {
-                showDeleteModal: false,
-                deleteTargetId: null,
-                deleteTargetName: '',
-
-                openDeleteModal(dept) {
-                    this.deleteTargetId = dept.id;
-                    this.deleteTargetName = dept.title;
-                    this.showDeleteModal = true;
-                }
-            };
-        }
-    </script>
 </div>
+
+<script>
+    function departmentManagement() {
+        return {
+            showDeleteModal: false,
+            deleteTargetId: null,
+            deleteTargetName: '',
+
+            openDeleteModal(dept) {
+                this.deleteTargetId = dept.id;
+                this.deleteTargetName = dept.title;
+                this.showDeleteModal = true;
+            }
+        };
+    }
+</script>
+

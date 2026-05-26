@@ -88,19 +88,21 @@
         </div>
     </div>
 
-    <script>
-        function roleManagement() {
-            return {
-                showDeleteRoleModal: false,
-                deleteTargetRoleId: null,
-                deleteTargetRoleName: '',
-
-                openDeleteModal(role) {
-                    this.deleteTargetRoleId = role.id;
-                    this.deleteTargetRoleName = role.name;
-                    this.showDeleteRoleModal = true;
-                }
-            };
-        }
-    </script>
 </div>
+
+<script>
+    function roleManagement() {
+        return {
+            showDeleteRoleModal: false,
+            deleteTargetRoleId: null,
+            deleteTargetRoleName: '',
+
+            openDeleteModal(role) {
+                this.deleteTargetRoleId = role.id;
+                this.deleteTargetRoleName = role.name;
+                this.showDeleteRoleModal = true;
+            }
+        };
+    }
+</script>
+

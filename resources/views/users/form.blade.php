@@ -17,7 +17,20 @@
         </a>
     </div>
 
-    <form action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}" method="POST" class="flex flex-col flex-1">
+    @php
+        if (auth()->user()->hasRole('dept head')) {
+            $selectedRole = 'team';
+        } else {
+            $selectedRole = old('roles.0', $user->roles->first()?->name ?? '');
+        }
+    @endphp
+
+    <form
+        action="{{ $user->exists ? route('admin.users.update', $user) : route('admin.users.store') }}"
+        method="POST"
+        class="flex flex-col flex-1"
+        x-data="{ selectedRole: @js($selectedRole) }"
+    >
         @csrf
         @if($user->exists)
             @method('PUT')
@@ -73,25 +86,42 @@
 
             <div class="space-y-2">
                 <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Assigned Role</label>
-                <select name="roles[]" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition">
-                    <option value="">Select a role</option>
-                    @foreach($roles as $role)
-                        <option value="{{ $role->name }}" {{ old('roles.0', $user->roles->first()?->name) == $role->name ? 'selected' : '' }}>{{ $role->name }}</option>
-                    @endforeach
-                </select>
+                @if(auth()->user()->hasRole('dept head'))
+                    <select
+                        name="roles[]"
+                        class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-400 cursor-not-allowed"
+                        disabled
+                    >
+                        <option value="team" selected>team</option>
+                    </select>
+                    <input type="hidden" name="roles[]" value="team">
+                @else
+                    <select
+                        name="roles[]"
+                        x-model="selectedRole"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                    >
+                        <option value="">Select a role</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->name }}" {{ $selectedRole === $role->name ? 'selected' : '' }}>{{ $role->name }}</option>
+                        @endforeach
+                    </select>
+                @endif
                 @error('roles') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
             </div>
 
-            <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Department</label>
-                <select name="department" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition">
-                    <option value="">Select a department</option>
-                    @foreach($departments as $dept)
-                        <option value="{{ $dept->title }}" {{ old('department', $user->department) == $dept->title ? 'selected' : '' }}>{{ $dept->title }}</option>
-                    @endforeach
-                </select>
-                @error('department') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
-            </div>
+            @if(!auth()->user()->hasRole('dept head'))
+                <div class="space-y-2" x-cloak x-show="selectedRole === 'team'">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Department</label>
+                    <select name="department" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition">
+                        <option value="">Select a department</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->title }}" {{ old('department', $user->department) == $dept->title ? 'selected' : '' }}>{{ $dept->title }}</option>
+                        @endforeach
+                    </select>
+                    @error('department') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
+                </div>
+            @endif
         </div>
 
         <div class="h-20 border-t border-slate-800 px-6 bg-slate-900/40 flex items-center justify-end gap-3 shrink-0">
