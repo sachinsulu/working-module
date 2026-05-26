@@ -14,7 +14,11 @@ class UserController extends Controller
     public function create()
     {
         $user = new User();
-        $roles = Role::orderBy('name')->get();
+        $rolesQuery = Role::orderBy('name');
+        if (!auth()->user()->hasRole('super admin')) {
+            $rolesQuery->where('name', '!=', 'super admin');
+        }
+        $roles = $rolesQuery->get();
         $departments = Department::orderBy('title')->get();
 
         return view('users.form', [
@@ -26,7 +30,15 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        $roles = Role::orderBy('name')->get();
+        if ($user->hasRole('super admin') && !auth()->user()->hasRole('super admin')) {
+            abort(403);
+        }
+
+        $rolesQuery = Role::orderBy('name');
+        if (!auth()->user()->hasRole('super admin')) {
+            $rolesQuery->where('name', '!=', 'super admin');
+        }
+        $roles = $rolesQuery->get();
         $departments = Department::orderBy('title')->get();
 
         return view('users.form', [
@@ -98,6 +110,15 @@ class UserController extends Controller
 
         $selectedRole = $request->input('roles.0');
 
+        $rolesRules = ['array'];
+        if (!auth()->user()->hasRole('super admin')) {
+            $rolesRules[] = function ($attribute, $value, $fail) {
+                if (in_array('super admin', $value)) {
+                    $fail('You are not authorized to assign the super admin role.');
+                }
+            };
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
@@ -106,7 +127,7 @@ class UserController extends Controller
             'department' => [Rule::requiredIf($selectedRole === 'team'), 'nullable', 'string', 'max:100'],
             'contact_no' => 'nullable|string|max:50',
             'address' => 'nullable|string',
-            'roles' => 'array',
+            'roles' => $rolesRules,
         ]);
 
         $user = User::create([
@@ -128,6 +149,10 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        if ($user->hasRole('super admin') && !auth()->user()->hasRole('super admin')) {
+            abort(403);
+        }
+
         if (auth()->user()->hasRole('dept head')) {
             $department = Department::where('head_user_id', auth()->id())->first();
             if (!$department) {
@@ -143,6 +168,15 @@ class UserController extends Controller
 
         $selectedRole = $request->input('roles.0');
 
+        $rolesRules = ['array'];
+        if (!auth()->user()->hasRole('super admin')) {
+            $rolesRules[] = function ($attribute, $value, $fail) {
+                if (in_array('super admin', $value)) {
+                    $fail('You are not authorized to assign the super admin role.');
+                }
+            };
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
@@ -151,7 +185,7 @@ class UserController extends Controller
             'department' => [Rule::requiredIf($selectedRole === 'team'), 'nullable', 'string', 'max:100'],
             'contact_no' => 'nullable|string|max:50',
             'address' => 'nullable|string',
-            'roles' => 'array',
+            'roles' => $rolesRules,
         ]);
 
         $updateData = [
@@ -177,6 +211,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->hasRole('super admin') && !auth()->user()->hasRole('super admin')) {
+            abort(403);
+        }
+
         // Avoid deleting self
         if ($user->id === auth()->id()) {
             return redirect()->route('admin.users.index')->with('error', "You cannot delete your own authenticated account.");

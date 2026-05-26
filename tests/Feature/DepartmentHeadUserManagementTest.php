@@ -143,4 +143,100 @@ class DepartmentHeadUserManagementTest extends TestCase
         $this->assertEquals('Engineering', $teamUser->department);
         $this->assertTrue($teamUser->hasRole('team'));
     }
+
+    public function test_department_head_cannot_see_super_admin_in_list_or_roles_filter()
+    {
+        $superAdmin = User::role('super admin')->first();
+
+        $component = \Livewire\Livewire::actingAs($this->deptHead)
+            ->test(\App\Livewire\Admin\UserManagement::class);
+
+        // Verify the users collection passed to view does not contain super admin
+        $users = $component->viewData('users');
+        $this->assertFalse($users->contains('id', $superAdmin->id));
+
+        // Verify the roles collection passed to view does not contain 'super admin'
+        $roles = $component->viewData('roles');
+        $this->assertFalse($roles->contains('name', 'super admin'));
+    }
+
+    public function test_department_head_cannot_assign_super_admin_role()
+    {
+        $newMemberData = [
+            'name' => 'Fake Admin',
+            'email' => 'fakeadmin@example.com',
+            'employee_id' => 'EMP-998',
+            'password' => 'secret123',
+            'roles' => ['super admin'],
+        ];
+
+        $response = $this->actingAs($this->deptHead)
+            ->post(route('admin.users.store'), $newMemberData);
+
+        $response->assertRedirect(route('admin.users.index'));
+        $createdUser = User::where('email', 'fakeadmin@example.com')->first();
+        $this->assertNotNull($createdUser);
+        $this->assertTrue($createdUser->hasRole('team'));
+        $this->assertFalse($createdUser->hasRole('super admin'));
+    }
+
+    public function test_non_super_admin_cannot_assign_super_admin_role_even_if_not_dept_head()
+    {
+        $mgmtRole = Role::findByName('mgmt');
+        $mgmtRole->givePermissionTo('manage users');
+
+        $user = User::create([
+            'name' => 'Manager User',
+            'email' => 'manager@example.com',
+            'password' => bcrypt('password'),
+            'employee_id' => 'EMP-111',
+        ]);
+        $user->assignRole($mgmtRole);
+        $user = $user->fresh();
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        $newMemberData = [
+            'name' => 'Fake Admin 2',
+            'email' => 'fakeadmin2@example.com',
+            'employee_id' => 'EMP-997',
+            'password' => 'secret123',
+            'department' => 'Marketing',
+            'roles' => ['super admin'],
+        ];
+
+        $response = $this->actingAs($user)
+            ->post(route('admin.users.store'), $newMemberData);
+
+        if ($response->status() !== 302) {
+            dump($response->getContent());
+        }
+
+        $response->assertSessionHasErrors(['roles']);
+        $this->assertDatabaseMissing('users', ['email' => 'fakeadmin2@example.com']);
+    }
+
+    public function test_non_super_admin_cannot_edit_update_or_delete_super_admin()
+    {
+        $superAdmin = User::role('super admin')->first();
+
+        // 1. Edit
+        $response = $this->actingAs($this->deptHead)
+            ->get(route('admin.users.edit', $superAdmin));
+        $response->assertStatus(403);
+
+        // 2. Update
+        $response = $this->actingAs($this->deptHead)
+            ->put(route('admin.users.update', $superAdmin), [
+                'name' => 'Hacked Admin',
+                'email' => $superAdmin->email,
+                'employee_id' => $superAdmin->employee_id,
+            ]);
+        $response->assertStatus(403);
+
+        // 3. Delete
+        $response = $this->actingAs($this->deptHead)
+            ->delete(route('admin.users.destroy', $superAdmin));
+        $response->assertStatus(403);
+    }
 }

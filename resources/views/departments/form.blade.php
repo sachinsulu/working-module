@@ -15,10 +15,6 @@
             $serviceErrors[(int) $matches[1]] = $messages[0];
         }
     }
-
-    if (empty($serviceRows)) {
-        $serviceRows = [['id' => null, 'title' => '']];
-    }
 @endphp
 
 <div class="max-w-2xl mx-auto rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden flex flex-col animate-fadeIn">
@@ -97,7 +93,7 @@
 
                             <button
                                 type="button"
-                                @click="serviceRows.splice(index, 1); if (!serviceRows.length) serviceRows.push({ id: null, title: '' })"
+                                @click="serviceRows.splice(index, 1)"
                                 class="w-8 h-8 rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/50 hover:text-rose-300 transition flex items-center justify-center shrink-0 text-base leading-none"
                                 aria-label="Remove row"
                             >

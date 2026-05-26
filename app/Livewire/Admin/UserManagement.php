@@ -46,7 +46,12 @@ class UserManagement extends Component
 
     public function render()
     {
-        $users = User::query()
+        $usersQuery = User::query();
+        if (!auth()->user()->hasRole('super admin')) {
+            $usersQuery->whereDoesntHave('roles', fn($q) => $q->where('name', 'super admin'));
+        }
+
+        $users = $usersQuery
             ->when($this->search, fn($q) => $q->where(fn($sub) =>
                 $sub->where('name', 'like', "%{$this->search}%")
                     ->orWhere('email', 'like', "%{$this->search}%")
@@ -55,12 +60,20 @@ class UserManagement extends Component
             ->when($this->filterRole, fn($q) => $q->whereHas('roles', fn($sq) => $sq->where('name', $this->filterRole)))
             ->paginate(10);
 
-        $allDepartments = User::select('department')
+        $allDepartmentsQuery = User::select('department')
             ->distinct()
-            ->orderBy('department')
-            ->pluck('department');
+            ->orderBy('department');
+        if (!auth()->user()->hasRole('super admin')) {
+            $allDepartmentsQuery->whereDoesntHave('roles', fn($q) => $q->where('name', 'super admin'));
+        }
+        $allDepartments = $allDepartmentsQuery->pluck('department');
 
-        $roles = Role::orderBy('name')->get();
+        $rolesQuery = Role::orderBy('name');
+        if (!auth()->user()->hasRole('super admin')) {
+            $rolesQuery->where('name', '!=', 'super admin');
+        }
+        $roles = $rolesQuery->get();
+
         $departments = Department::orderBy('title')->get();
 
         return view('livewire.admin.user-management', [
