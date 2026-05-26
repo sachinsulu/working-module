@@ -53,7 +53,7 @@ class UserManagement extends Component
                     ->orWhere('employee_id', 'like', "%{$this->search}%")))
             ->when($this->filterDepartment, fn($q) => $q->where('department', $this->filterDepartment))
             ->when($this->filterRole, fn($q) => $q->whereHas('roles', fn($sq) => $sq->where('name', $this->filterRole)))
-            ->paginate(15);
+            ->paginate(10);
 
         $allDepartments = User::select('department')
             ->distinct()
