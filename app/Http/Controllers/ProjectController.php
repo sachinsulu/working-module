@@ -132,6 +132,13 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
+        \Illuminate\Support\Facades\Log::info('Upload debug before validation', [
+            'request_logo' => $request->input('logo'),
+            'has_logo_file' => $request->hasFile('logo'),
+            'files' => $request->allFiles(),
+            'php_files' => $_FILES ?? []
+        ]);
+
         $validated = $request->validate([
             'project_name' => 'required|string|max:191',
             'client_id' => 'required|exists:clients,id',
@@ -195,17 +202,23 @@ class ProjectController extends Controller
             // handle uploads (replace existing)
             $basePath = "projects/{$project->id}";
             if ($request->hasFile('logo')) {
-                Storage::disk('public')->delete($project->logo_path);
+                if ($project->logo_path) {
+                    Storage::disk('public')->delete($project->logo_path);
+                }
                 $path = $request->file('logo')->storeAs($basePath, 'logo.pdf', 'public');
                 $project->logo_path = $path;
             }
             if ($request->hasFile('brand_guidelines')) {
-                Storage::disk('public')->delete($project->brand_guidelines_path);
+                if ($project->brand_guidelines_path) {
+                    Storage::disk('public')->delete($project->brand_guidelines_path);
+                }
                 $path = $request->file('brand_guidelines')->storeAs($basePath, 'brand_guidelines.pdf', 'public');
                 $project->brand_guidelines_path = $path;
             }
             if ($request->hasFile('fact_sheet')) {
-                Storage::disk('public')->delete($project->fact_sheet_path);
+                if ($project->fact_sheet_path) {
+                    Storage::disk('public')->delete($project->fact_sheet_path);
+                }
                 $path = $request->file('fact_sheet')->storeAs($basePath, 'fact_sheet.pdf', 'public');
                 $project->fact_sheet_path = $path;
             }

@@ -152,7 +152,8 @@
                                     type="number"
                                     :name="`departments[${idx}][amount]`"
                                     :disabled="!selectedDepts[{{ $dept->id }}]"
-                                    value="{{ $oldAmount }}"
+                                    :required="selectedDepts[{{ $dept->id }}]"
+                                    value="{{ $oldAmount !== '' ? $oldAmount : '0' }}"
                                     min="0"
                                     step="0.01"
                                     placeholder="0.00"
@@ -221,18 +222,21 @@
                         ['brand_guidelines', 'Brand Guidelines', $project->brand_guidelines_path ?? null],
                         ['fact_sheet', 'Fact Sheet', $project->fact_sheet_path ?? null],
                     ] as [$field, $label, $existing])
-                        <div class="space-y-1.5">
+                        <div class="space-y-1.5" x-data="{ fileName: '' }">
                             <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">{{ $label }}</label>
                             <label class="flex flex-col items-center justify-center gap-1.5 p-4 rounded-xl border-2 border-dashed cursor-pointer transition
-                                {{ $existing ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-slate-700 bg-slate-950 hover:border-indigo-500/40 hover:bg-indigo-500/5' }}">
+                                {{ $existing ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-slate-700 bg-slate-950 hover:border-indigo-500/40 hover:bg-indigo-500/5' }}"
+                                :class="fileName ? '!border-indigo-500/40 !bg-indigo-500/5' : ''">
                                 @if($existing)
-                                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span class="text-[10px] text-emerald-400 font-semibold">Uploaded — replace</span>
+                                    <svg x-show="!fileName" class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span x-show="!fileName" class="text-[10px] text-emerald-400 font-semibold">Uploaded — replace</span>
                                 @else
-                                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                    <span class="text-[10px] text-slate-500">Click to upload PDF</span>
+                                    <svg x-show="!fileName" class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                    <span x-show="!fileName" class="text-[10px] text-slate-500">Click to upload PDF</span>
                                 @endif
-                                <input type="file" name="{{ $field }}" accept=".pdf" class="hidden" />
+                                <svg x-cloak x-show="fileName" class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span x-cloak x-show="fileName" x-text="fileName" class="text-[10px] text-indigo-400 font-semibold truncate max-w-[150px] px-1"></span>
+                                <input type="file" name="{{ $field }}" accept=".pdf" class="hidden" @change="fileName = $event.target.files[0] ? $event.target.files[0].name : ''" />
                             </label>
                             @if($existing)
                                 <a href="{{ asset('storage/' . $existing) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[10px] text-indigo-300 hover:text-indigo-200 font-semibold transition">

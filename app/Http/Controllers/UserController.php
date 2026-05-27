@@ -103,8 +103,10 @@ class UserController extends Controller
                     ->withErrors(['department' => 'You must be assigned as a head of a department before adding members.']);
             }
             $request->merge([
-                'roles' => ['team'],
-                'department' => $department->title,
+                'roles'                 => ['team'],
+                'department'            => $department->title,
+                'status'               => 'active',
+                'password_confirmation' => $request->input('password'),
             ]);
         }
 
@@ -163,8 +165,9 @@ class UserController extends Controller
                     ->withErrors(['department' => 'You must be assigned as a head of a department before editing members.']);
             }
             $request->merge([
-                'roles' => ['team'],
+                'roles'      => ['team'],
                 'department' => $department->title,
+                'status'     => $user->status ?? 'active',
             ]);
         }
 

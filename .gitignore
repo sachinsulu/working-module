@@ -67,4 +67,11 @@ desktop.ini
 
 # Ignore storage directory
 /storage/
+cache/
+logs/
+sessions/
+
+# Ignore temporary media files but keep the directory
+/media/
+/public/
 
