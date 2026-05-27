@@ -66,15 +66,6 @@
                     @error('contact_no') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="space-y-1 sm:col-span-2">
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                        Password 
-                        @if(!$user->exists) <span class="text-indigo-400">*</span> @else <span class="text-slate-500">(Leave blank to keep current)</span> @endif
-                    </label>
-                    <input name="password" type="password" placeholder="Min. 8 characters" {{ $user->exists ? '' : 'required' }}
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
-                    @error('password') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
-                </div>
             </div>
 
             <div class="space-y-1">
@@ -122,6 +113,23 @@
                     @error('department') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
             @endif
+
+            <div class="space-y-1 sm:col-span-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                    Password 
+                    @if(!$user->exists) <span class="text-indigo-400">*</span> @else <span class="text-slate-500">(Leave blank to keep current)</span> @endif
+                </label>
+                <input name="password" type="password" placeholder="Min. 8 characters" {{ $user->exists ? '' : 'required' }}
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
+                @error('password') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="space-y-1 sm:col-span-2">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Confirm Password</label>
+                <input name="password_confirmation" type="password" placeholder="Re-enter password"
+                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
+                @error('password_confirmation') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
+            </div>
         </div>
 
         <div class="h-20 border-t border-slate-800 px-6 bg-slate-900/40 flex items-center justify-end gap-3 shrink-0">

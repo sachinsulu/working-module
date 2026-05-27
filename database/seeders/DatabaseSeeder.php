@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
         $permissions = [
             'view dashboard',
             'manage users',
+            'manage clients',
+            'manage projects',
             'manage roles',
             'view department stats',
         ];
