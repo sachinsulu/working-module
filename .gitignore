@@ -65,3 +65,6 @@ desktop.ini
 # npm: package-lock.json
 # yarn: yarn.lock
 
+# Ignore storage directory
+/storage/
+
