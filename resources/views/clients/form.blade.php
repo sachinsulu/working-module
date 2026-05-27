@@ -58,6 +58,15 @@
                 </div>
 
                 <div class="space-y-1 sm:col-span-2">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Status <span class="text-indigo-400">*</span></label>
+                    <select name="status" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition">
+                        <option value="active" {{ old('status', $client->status ?? 'active') === 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ old('status', $client->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    </select>
+                    @error('status') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="space-y-1 sm:col-span-2">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">
                         Password
                         @if(!$client->exists) <span class="text-indigo-400">*</span> @else <span class="text-slate-500">(Leave blank to keep current)</span> @endif

@@ -127,6 +127,7 @@ class UserController extends Controller
             'department' => [Rule::requiredIf($selectedRole === 'team'), 'nullable', 'string', 'max:100'],
             'contact_no' => 'nullable|string|max:50',
             'address' => 'nullable|string',
+            'status' => 'required|in:active,inactive',
             'roles' => $rolesRules,
         ]);
 
@@ -138,6 +139,7 @@ class UserController extends Controller
             'department' => $selectedRole === 'team' ? ($validated['department'] ?? null) : null,
             'contact_no' => $validated['contact_no'] ?? null,
             'address' => $validated['address'] ?? null,
+            'status' => $validated['status'],
         ]);
 
         if ($request->has('roles')) {
@@ -185,6 +187,7 @@ class UserController extends Controller
             'department' => [Rule::requiredIf($selectedRole === 'team'), 'nullable', 'string', 'max:100'],
             'contact_no' => 'nullable|string|max:50',
             'address' => 'nullable|string',
+            'status' => 'required|in:active,inactive',
             'roles' => $rolesRules,
         ]);
 
@@ -195,6 +198,7 @@ class UserController extends Controller
             'department' => $selectedRole === 'team' ? ($validated['department'] ?? null) : null,
             'contact_no' => $validated['contact_no'] ?? null,
             'address' => $validated['address'] ?? null,
+            'status' => $validated['status'],
         ];
 
         if (!empty($validated['password'])) {

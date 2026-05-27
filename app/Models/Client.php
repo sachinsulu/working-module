@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['name', 'email', 'password', 'address', 'contact_no'])]
+#[Fillable(['name', 'email', 'password', 'address', 'contact_no', 'status'])]
 /**
  * App\Models\Client
  *

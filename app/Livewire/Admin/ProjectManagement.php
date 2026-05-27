@@ -49,7 +49,7 @@ class ProjectManagement extends Component
 
         return view('livewire.admin.project-management', [
             'projects'     => $projects,
-            'projectTypes' => ['Branding', 'Digital', 'Print', 'Other'],
+            'projectTypes' => Project::select('project_type')->distinct()->whereNotNull('project_type')->pluck('project_type')->filter()->toArray(),
         ]);
     }
 }

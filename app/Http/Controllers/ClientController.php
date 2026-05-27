@@ -50,6 +50,7 @@ class ClientController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'address' => 'nullable|string',
             'contact_no' => 'nullable|string|max:50',
+            'status' => 'required|in:active,inactive',
         ]);
 
         $client = Client::create([
@@ -58,6 +59,7 @@ class ClientController extends Controller
             'password' => Hash::make($validated['password']),
             'address' => $validated['address'] ?? null,
             'contact_no' => $validated['contact_no'] ?? null,
+            'status' => $validated['status'],
         ]);
 
         return redirect()->route('admin.clients.index')->with('message', "Client '{$client->name}' created successfully.");
@@ -78,6 +80,7 @@ class ClientController extends Controller
             'password' => 'nullable|string|min:6|confirmed',
             'address' => 'nullable|string',
             'contact_no' => 'nullable|string|max:50',
+            'status' => 'required|in:active,inactive',
         ]);
 
         $updateData = [
@@ -85,6 +88,7 @@ class ClientController extends Controller
             'email' => $validated['email'],
             'address' => $validated['address'] ?? null,
             'contact_no' => $validated['contact_no'] ?? null,
+            'status' => $validated['status'],
         ];
 
         if (!empty($validated['password'])) {

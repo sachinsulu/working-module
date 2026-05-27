@@ -32,6 +32,7 @@
                         <th class="px-6 py-4">Email</th>
                         <th class="px-6 py-4">Number</th>
                         <th class="px-6 py-4">Address</th>
+                        <th class="px-6 py-4">Status</th>
                         <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -53,6 +54,20 @@
                             <td class="px-6 py-4 text-slate-300">{{ $client->email }}</td>
                             <td class="px-6 py-4 text-slate-400">{{ $client->contact_no ?: 'No number' }}</td>
                             <td class="px-6 py-4 text-xs text-slate-400 max-w-xs truncate" title="{{ $client->address }}">{{ $client->address ?: 'No address' }}</td>
+
+                            <td class="px-6 py-4">
+                                @if($client->status === 'active')
+                                    <span class="flex items-center gap-1.5 w-fit">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Active</span>
+                                    </span>
+                                @else
+                                    <span class="flex items-center gap-1.5 w-fit">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Inactive</span>
+                                    </span>
+                                @endif
+                            </td>
 
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">

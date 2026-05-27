@@ -41,3 +41,27 @@ Thumbs.db
 /.fleet
 /.php_cs.cache
 /.php_cs.dist
+
+# Additional common ignores
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# System files
+ehthumbs.db
+desktop.ini
+
+# Editors/IDE
+*.sublime-project
+*.sublime-workspace
+
+# Local environment overrides
+.env.local
+.env.*.local
+
+# Lock files (optional)
+# npm: package-lock.json
+# yarn: yarn.lock
+

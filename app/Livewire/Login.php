@@ -19,7 +19,7 @@ class Login extends Component
             'password' => 'required',
         ]);
 
-        if (Auth::attempt(['email' => $this->email, 'password' => $this->password])) {
+        if (Auth::attempt(['email' => $this->email, 'password' => $this->password, 'status' => 'active'])) {
             // Regenerate session to prevent fixation
             // Regenerate session to prevent fixation
             session()->regenerate();

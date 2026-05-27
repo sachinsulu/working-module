@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Client;
 use App\Models\Department;
 use App\Models\User;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -22,9 +23,8 @@ class ProjectController extends Controller
         $clients = Client::orderBy('name')->get();
         $departments = Department::with('head')->orderBy('title')->get();
         $users = User::orderBy('name')->get();
-        $projectTypes = ['Branding','Digital','Print','Other'];
 
-        return view('projects.form', compact('clients','departments','users','projectTypes'));
+        return view('projects.form', compact('clients','departments','users'));
     }
 
     public function store(Request $request)
@@ -34,7 +34,7 @@ class ProjectController extends Controller
             'client_id' => 'required|exists:clients,id',
             'project_type' => 'required|string',
             'agreement_date' => 'nullable|date',
-            'start_date' => 'nullable|date',
+            'start_date' => 'nullable|date|after_or_equal:agreement_date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'content' => 'nullable|string',
             'status' => 'nullable|in:active,inactive',
@@ -47,13 +47,20 @@ class ProjectController extends Controller
             'fact_sheet' => 'nullable|mimes:pdf|max:5120',
         ]);
 
+        $projectData = Arr::only($validated, [
+            'project_name',
+            'client_id',
+            'project_type',
+            'agreement_date',
+            'start_date',
+            'end_date',
+            'content',
+        ]);
+        $projectData['status'] = $validated['status'] ?? 'active';
+
         DB::beginTransaction();
         try {
-            $project = Project::create(
-                array_merge($validated, [
-                    'status' => $validated['status'] ?? 'active',
-                ])
-            );
+            $project = Project::create($projectData);
 
             // attach departments with amounts
             $attach = [];
@@ -100,7 +107,7 @@ class ProjectController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.projects.index')->with('success', 'Project created.');
+            return redirect()->route('admin.projects.edit', ['project' => $project->id])->with('message', "Project '{$project->project_name}' created successfully.");
         } catch (\Throwable $e) {
             DB::rollBack();
             // cleanup files created in storage if any
@@ -116,12 +123,11 @@ class ProjectController extends Controller
         $clients = Client::orderBy('name')->get();
         $departments = Department::with('head')->orderBy('title')->get();
         $users = User::orderBy('name')->get();
-        $projectTypes = ['Branding','Digital','Print','Other'];
 
         // load pivots and selected teams
         $project->load('departments', 'teamMembers');
 
-        return view('projects.form', compact('project','clients','departments','users','projectTypes'));
+        return view('projects.form', compact('project','clients','departments','users'));
     }
 
     public function update(Request $request, Project $project)
@@ -131,7 +137,7 @@ class ProjectController extends Controller
             'client_id' => 'required|exists:clients,id',
             'project_type' => 'required|string',
             'agreement_date' => 'nullable|date',
-            'start_date' => 'nullable|date',
+            'start_date' => 'nullable|date|after_or_equal:agreement_date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'content' => 'nullable|string',
             'status' => 'nullable|in:active,inactive',
@@ -144,9 +150,20 @@ class ProjectController extends Controller
             'fact_sheet' => 'nullable|mimes:pdf|max:5120',
         ]);
 
+        $projectData = Arr::only($validated, [
+            'project_name',
+            'client_id',
+            'project_type',
+            'agreement_date',
+            'start_date',
+            'end_date',
+            'content',
+        ]);
+        $projectData['status'] = $validated['status'] ?? $project->status;
+
         DB::beginTransaction();
         try {
-            $project->update(array_merge($validated, ['status' => $validated['status'] ?? $project->status]));
+            $project->update($projectData);
 
             // sync departments
             $attach = [];
@@ -197,7 +214,7 @@ class ProjectController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.projects.index')->with('success', 'Project updated.');
+            return redirect()->route('admin.projects.edit', ['project' => $project->id])->with('message', "Project '{$project->project_name}' updated successfully.");
         } catch (\Throwable $e) {
             DB::rollBack();
             return back()->withInput()->withErrors(['error' => $e->getMessage()]);

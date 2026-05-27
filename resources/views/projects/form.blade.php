@@ -23,7 +23,7 @@
     </div>
 
     <form
-        action="{{ isset($project) ? route('admin.projects.update', $project) : route('admin.projects.store') }}"
+        action="{{ isset($project) ? url('admin/projects/' . $project->id) : route('admin.projects.store') }}"
         method="POST"
         enctype="multipart/form-data"
         class="flex flex-col flex-1"
@@ -33,7 +33,7 @@
             @method('PUT')
         @endif
 
-        @if($errors->any())
+        @if(isset($errors) && $errors->any())
             <div class="mx-6 mt-4 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 space-y-1">
                 @foreach($errors->all() as $error)
                     <p>• {{ $error }}</p>
@@ -69,12 +69,9 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Project Type <span class="text-indigo-400">*</span></label>
-                    <select name="project_type" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition">
-                        <option value="">Select type…</option>
-                        @foreach($projectTypes as $type)
-                            <option value="{{ $type }}" {{ old('project_type', $project->project_type ?? '') === $type ? 'selected' : '' }}>{{ $type }}</option>
-                        @endforeach
-                    </select>
+                    <input name="project_type" type="text" required placeholder="e.g. Website, Branding, App..."
+                        value="{{ old('project_type', $project->project_type ?? '') }}"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
                     @error('project_type') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
 
@@ -92,23 +89,23 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Agreement Date</label>
-                    <input name="agreement_date" type="date"
+                    <input id="agreement_date" name="agreement_date" type="text" placeholder="Select date..."
                         value="{{ old('agreement_date', isset($project->agreement_date) ? $project->agreement_date->format('Y-m-d') : '') }}"
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition [color-scheme:dark]" />
+                        class="datepicker w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
                     @error('agreement_date') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Start Date</label>
-                    <input name="start_date" type="date"
+                    <input id="start_date" name="start_date" type="text" placeholder="Select date..."
                         value="{{ old('start_date', isset($project->start_date) ? $project->start_date->format('Y-m-d') : '') }}"
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition [color-scheme:dark]" />
+                        class="datepicker w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
                     @error('start_date') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">End Date</label>
-                    <input name="end_date" type="date"
+                    <input id="end_date" name="end_date" type="text" placeholder="Select date..."
                         value="{{ old('end_date', isset($project->end_date) ? $project->end_date->format('Y-m-d') : '') }}"
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition [color-scheme:dark]" />
+                        class="datepicker w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
                     @error('end_date') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -130,14 +127,15 @@
                             $oldAmount = !empty($oldDepts) ? (collect($oldDepts)->firstWhere('id', (string)$dept->id)['amount'] ?? '') : ($existing ? $existing->pivot->amount : '');
                         @endphp
                         <div
-                            x-data="{ checked: {{ $isChecked ? 'true' : 'false' }}, idx: {{ $index }} }"
+                            x-data="{ idx: {{ $index }}, initialCheck: {{ $isChecked ? 'true' : 'false' }} }"
+                            x-init="selectedDepts[{{ $dept->id }}] = initialCheck"
                             class="flex items-center gap-4 p-3 rounded-xl border transition"
-                            :class="checked ? 'bg-indigo-500/5 border-indigo-500/25' : 'bg-slate-950 border-slate-800'"
+                            :class="selectedDepts[{{ $dept->id }}] ? 'bg-indigo-500/5 border-indigo-500/25' : 'bg-slate-950 border-slate-800'"
                         >
                             <input
                                 type="checkbox"
                                 id="dept-{{ $dept->id }}"
-                                x-model="checked"
+                                x-model="selectedDepts[{{ $dept->id }}]"
                                 class="w-4 h-4 accent-indigo-500 cursor-pointer"
                             />
                             <label for="dept-{{ $dept->id }}" class="flex-1 text-sm text-slate-300 font-semibold cursor-pointer select-none">
@@ -147,13 +145,13 @@
                                 @endif
                             </label>
 
-                            <div class="flex items-center gap-2 shrink-0" x-show="checked">
-                                <input type="hidden" :name="`departments[${idx}][id]`" :disabled="!checked" value="{{ $dept->id }}">
+                            <div class="flex items-center gap-2 shrink-0" x-show="selectedDepts[{{ $dept->id }}]" x-cloak>
+                                <input type="hidden" :name="`departments[${idx}][id]`" :disabled="!selectedDepts[{{ $dept->id }}]" value="{{ $dept->id }}">
                                 <label class="text-[10px] text-slate-500 uppercase tracking-wider">Amount</label>
                                 <input
                                     type="number"
                                     :name="`departments[${idx}][amount]`"
-                                    :disabled="!checked"
+                                    :disabled="!selectedDepts[{{ $dept->id }}]"
                                     value="{{ $oldAmount }}"
                                     min="0"
                                     step="0.01"
@@ -167,7 +165,7 @@
             </div>
 
             {{-- TEAM MEMBERS per department --}}
-            <div class="space-y-3">
+            <div class="space-y-3" x-show="Object.values(selectedDepts).some(v => v)" x-cloak>
                 <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Team Members <span class="text-slate-600">(optional)</span></label>
 
                 @foreach($departments as $dept)
@@ -175,13 +173,16 @@
                         $assignedUsers = isset($project)
                             ? $project->teamMembers->where('pivot.department_id', $dept->id)->pluck('id')->toArray()
                             : [];
+                        $deptUsers = collect($users)->filter(function($u) use ($dept) {
+                            return strtolower(trim($u->department ?? '')) === strtolower(trim($dept->title ?? ''));
+                        });
                     @endphp
-                    <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden">
-                        <div class="px-4 py-2.5 bg-slate-900/60 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                            {{ $dept->title }}
+                    <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden" x-show="selectedDepts[{{ $dept->id }}]" x-cloak>
+                        <div class="px-4 py-2.5 bg-slate-900/60 border-b border-slate-800 flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">{{ $dept->title }}</span>
                         </div>
                         <div class="p-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            @foreach($users as $user)
+                            @forelse($deptUsers as $user)
                                 <label class="flex items-center gap-2 text-sm text-slate-300 cursor-pointer hover:text-white transition">
                                     <input
                                         type="checkbox"
@@ -190,9 +191,13 @@
                                         {{ in_array($user->id, $assignedUsers) ? 'checked' : '' }}
                                         class="w-3.5 h-3.5 accent-indigo-500"
                                     />
-                                    <span class="text-xs truncate">{{ $user->name }}</span>
+                                    <span class="text-xs truncate flex-1">
+                                        {{ $user->name }}
+                                    </span>
                                 </label>
-                            @endforeach
+                            @empty
+                                <div class="col-span-full text-xs text-slate-500 italic">No users found in this department.</div>
+                            @endforelse
                         </div>
                     </div>
                 @endforeach
@@ -201,7 +206,7 @@
             {{-- PROJECT BRIEF (content) --}}
             <div class="space-y-1">
                 <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Project Brief / Notes</label>
-                <textarea name="content" rows="4" placeholder="Describe the project scope, objectives, or notes…"
+                <textarea id="project-content" name="content" rows="4" placeholder="Describe the project scope, objectives, or notes…"
                     class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition resize-none">{{ old('content', $project->content ?? '') }}</textarea>
                 @error('content') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
             </div>
@@ -229,6 +234,12 @@
                                 @endif
                                 <input type="file" name="{{ $field }}" accept=".pdf" class="hidden" />
                             </label>
+                            @if($existing)
+                                <a href="{{ asset('storage/' . $existing) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-[10px] text-indigo-300 hover:text-indigo-200 font-semibold transition">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12h3m4 0a8.966 8.966 0 01-2.64 6.36A8.966 8.966 0 0113 21a8.966 8.966 0 01-6.36-2.64A8.966 8.966 0 014 12a8.966 8.966 0 012.64-6.36A8.966 8.966 0 0113 3a8.966 8.966 0 016.36 2.64A8.966 8.966 0 0121 12z"/></svg>
+                                    <span>{{ basename($existing) }}</span>
+                                </a>
+                            @endif
                             @error($field) <p class="text-[11px] text-rose-400 font-medium">{{ $message }}</p> @enderror
                         </div>
                     @endforeach
@@ -249,13 +260,44 @@
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const agreementPicker = flatpickr("#agreement_date", {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "F j, Y",
+            allowInput: true,
+            onChange: function (selectedDates) {
+                startPicker.set('minDate', selectedDates[0] || null);
+            }
+        });
+        const startPicker = flatpickr("#start_date", {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "F j, Y",
+            allowInput: true,
+            onChange: function (selectedDates) {
+                endPicker.set('minDate', selectedDates[0] || null);
+                if (agreementPicker.selectedDates[0] && selectedDates[0] < agreementPicker.selectedDates[0]) {
+                    startPicker.clear();
+                }
+            }
+        });
+        const endPicker = flatpickr("#end_date", {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "F j, Y",
+            allowInput: true
+        });
+    });
+
     function projectForm() {
         return {
+            selectedDepts: {},
             initDepartments(existing) {
-                // Pre-check checkboxes and amounts for existing project
-                // Alpine handles this via x-data on each row
+                // Alpine handles initialization via x-init
             }
         };
     }
 </script>
 @endsection
+
