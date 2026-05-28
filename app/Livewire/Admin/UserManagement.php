@@ -44,6 +44,15 @@ class UserManagement extends Component
         $this->resetPage();
     }
 
+    public function toggleStatus($id)
+    {
+        $user = User::find($id);
+        if ($user) {
+            $user->status = $user->status === 'active' ? 'inactive' : 'active';
+            $user->save();
+        }
+    }
+
     public function render()
     {
         $usersQuery = User::query();

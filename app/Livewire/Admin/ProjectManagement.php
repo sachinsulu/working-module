@@ -35,6 +35,15 @@ class ProjectManagement extends Component
         $this->resetPage();
     }
 
+    public function toggleStatus($id)
+    {
+        $project = Project::find($id);
+        if ($project) {
+            $project->status = $project->status === 'active' ? 'inactive' : 'active';
+            $project->save();
+        }
+    }
+
     public function render()
     {
         $projects = Project::with('client')

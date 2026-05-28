@@ -34,6 +34,15 @@ class ClientManagement extends Component
         $this->resetPage();
     }
 
+    public function toggleStatus($id)
+    {
+        $client = Client::find($id);
+        if ($client) {
+            $client->status = $client->status === 'active' ? 'inactive' : 'active';
+            $client->save();
+        }
+    }
+
     public function render()
     {
         $clients = Client::query()
