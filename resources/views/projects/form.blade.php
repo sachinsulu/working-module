@@ -118,6 +118,14 @@
                 </div>
                 @error('departments') <p class="text-[11px] text-rose-400 font-medium">{{ $message }}</p> @enderror
 
+                {{-- Department services map for JS --}}
+                @php
+                    $deptServicesMap = [];
+                    foreach($departments as $dept) {
+                        $deptServicesMap[$dept->id] = $dept->services->map(fn($s) => ['id' => $s->id, 'title' => $s->title])->values()->toArray();
+                    }
+                @endphp
+
                 <div class="space-y-2" id="departments-container">
                     @foreach($departments as $index => $dept)
                         @php
@@ -125,41 +133,88 @@
                             $existing  = isset($project) ? $project->departments->firstWhere('id', $dept->id) : null;
                             $isChecked = !empty($oldDepts) ? collect($oldDepts)->contains('id', (string)$dept->id) : (bool)$existing;
                             $oldAmount = !empty($oldDepts) ? (collect($oldDepts)->firstWhere('id', (string)$dept->id)['amount'] ?? '') : ($existing ? $existing->pivot->amount : '');
+                            $deptServices = $dept->services;
                         @endphp
                         <div
                             x-data="{ idx: {{ $index }}, initialCheck: {{ $isChecked ? 'true' : 'false' }} }"
                             x-init="selectedDepts[{{ $dept->id }}] = initialCheck"
-                            class="flex items-center gap-4 p-3 rounded-xl border transition"
+                            class="flex flex-col gap-2 p-3 rounded-xl border transition"
                             :class="selectedDepts[{{ $dept->id }}] ? 'bg-indigo-500/5 border-indigo-500/25' : 'bg-slate-950 border-slate-800'"
                         >
-                            <input
-                                type="checkbox"
-                                id="dept-{{ $dept->id }}"
-                                x-model="selectedDepts[{{ $dept->id }}]"
-                                class="w-4 h-4 accent-indigo-500 cursor-pointer"
-                            />
-                            <label for="dept-{{ $dept->id }}" class="flex-1 text-sm text-slate-300 font-semibold cursor-pointer select-none">
-                                {{ $dept->title }}
-                                @if($dept->head)
-                                    <span class="text-[10px] text-slate-500 ml-1">({{ $dept->head->name }})</span>
-                                @endif
-                            </label>
-
-                            <div class="flex items-center gap-2 shrink-0" x-show="selectedDepts[{{ $dept->id }}]" x-cloak>
-                                <input type="hidden" :name="`departments[${idx}][id]`" :disabled="!selectedDepts[{{ $dept->id }}]" value="{{ $dept->id }}">
-                                <label class="text-[10px] text-slate-500 uppercase tracking-wider">Amount</label>
+                            {{-- Top row: checkbox + label + amount --}}
+                            <div class="flex items-center gap-4">
                                 <input
-                                    type="number"
-                                    :name="`departments[${idx}][amount]`"
-                                    :disabled="!selectedDepts[{{ $dept->id }}]"
-                                    :required="selectedDepts[{{ $dept->id }}]"
-                                    value="{{ $oldAmount !== '' ? $oldAmount : '0' }}"
-                                    min="0"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    class="w-28 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                                    type="checkbox"
+                                    id="dept-{{ $dept->id }}"
+                                    x-model="selectedDepts[{{ $dept->id }}]"
+                                    class="w-4 h-4 accent-indigo-500 cursor-pointer shrink-0"
                                 />
+                                <label for="dept-{{ $dept->id }}" class="flex-1 text-sm text-slate-300 font-semibold cursor-pointer select-none">
+                                    {{ $dept->title }}
+                                    @if($dept->head)
+                                        <span class="text-[10px] text-slate-500 ml-1">({{ $dept->head->name }})</span>
+                                    @endif
+                                </label>
+
+                                <div class="flex items-center gap-2 shrink-0" x-show="selectedDepts[{{ $dept->id }}]" x-cloak>
+                                    <input type="hidden" :name="`departments[${idx}][id]`" :disabled="!selectedDepts[{{ $dept->id }}]" value="{{ $dept->id }}">
+                                    <label class="text-[10px] text-slate-500 uppercase tracking-wider">Amount</label>
+                                    <input
+                                        type="number"
+                                        :name="`departments[${idx}][amount]`"
+                                        :disabled="!selectedDepts[{{ $dept->id }}]"
+                                        :required="selectedDepts[{{ $dept->id }}]"
+                                        value="{{ $oldAmount !== '' ? $oldAmount : '0' }}"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        class="w-28 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                                    />
+                                </div>
                             </div>
+
+                            {{-- Services for this department (shown when checked) --}}
+                            @if($deptServices->isNotEmpty())
+                                @php
+                                    $selectedServiceIds = old('services',
+                                        isset($project) ? $project->services->pluck('id')->toArray() : []
+                                    );
+                                @endphp
+                                <div
+                                    x-show="selectedDepts[{{ $dept->id }}]"
+                                    x-cloak
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    class="pl-8 pt-1 space-y-1.5"
+                                >
+                                    <span class="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Services</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($deptServices as $service)
+                                            @php $isServiceChecked = in_array($service->id, array_map('intval', (array)$selectedServiceIds)); @endphp
+                                            <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition select-none
+                                                {{ $isServiceChecked
+                                                    ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
+                                                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/30 hover:text-slate-300' }}"
+                                                x-data="{ checked: {{ $isServiceChecked ? 'true' : 'false' }} }"
+                                                :class="checked
+                                                    ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
+                                                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-indigo-500/30 hover:text-slate-300'"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    name="services[]"
+                                                    value="{{ $service->id }}"
+                                                    x-model="checked"
+                                                    {{ $isServiceChecked ? 'checked' : '' }}
+                                                    class="w-3 h-3 accent-indigo-500 cursor-pointer"
+                                                />
+                                                <span class="text-[11px] font-medium">{{ $service->title }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>
@@ -167,7 +222,7 @@
 
             {{-- TEAM MEMBERS per department --}}
             <div class="space-y-3" x-show="Object.values(selectedDepts).some(v => v)" x-cloak>
-                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Team Members <span class="text-slate-600">(optional)</span></label>
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Team Members </label>
 
                 @foreach($departments as $dept)
                     @php

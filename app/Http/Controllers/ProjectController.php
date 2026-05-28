@@ -21,7 +21,7 @@ class ProjectController extends Controller
     public function create()
     {
         $clients = Client::orderBy('name')->get();
-        $departments = Department::with('head')->orderBy('title')->get();
+        $departments = Department::with(['head', 'services'])->orderBy('title')->get();
         $users = User::orderBy('name')->get();
 
         return view('projects.form', compact('clients','departments','users'));
@@ -42,6 +42,8 @@ class ProjectController extends Controller
             'departments.*.id' => 'required|exists:departments,id',
             'departments.*.amount' => 'required|numeric|min:0',
             'teams' => 'nullable|array',
+            'services' => 'nullable|array',
+            'services.*' => 'exists:services,id',
             'logo' => 'nullable|mimes:pdf|max:5120',
             'brand_guidelines' => 'nullable|mimes:pdf|max:5120',
             'fact_sheet' => 'nullable|mimes:pdf|max:5120',
@@ -68,6 +70,9 @@ class ProjectController extends Controller
                 $attach[$dept['id']] = ['amount' => $dept['amount']];
             }
             $project->departments()->sync($attach);
+
+            // sync selected services
+            $project->services()->sync($validated['services'] ?? []);
 
             // attach team members (project_department_teams)
             if ($request->filled('teams')) {
@@ -121,11 +126,11 @@ class ProjectController extends Controller
     public function edit(Project $project)
     {
         $clients = Client::orderBy('name')->get();
-        $departments = Department::with('head')->orderBy('title')->get();
+        $departments = Department::with(['head', 'services'])->orderBy('title')->get();
         $users = User::orderBy('name')->get();
 
-        // load pivots and selected teams
-        $project->load('departments', 'teamMembers');
+        // load pivots and selected teams/services
+        $project->load('departments', 'teamMembers', 'services');
 
         return view('projects.form', compact('project','clients','departments','users'));
     }
@@ -152,6 +157,8 @@ class ProjectController extends Controller
             'departments.*.id' => 'required|exists:departments,id',
             'departments.*.amount' => 'required|numeric|min:0',
             'teams' => 'nullable|array',
+            'services' => 'nullable|array',
+            'services.*' => 'exists:services,id',
             'logo' => 'nullable|mimes:pdf|max:5120',
             'brand_guidelines' => 'nullable|mimes:pdf|max:5120',
             'fact_sheet' => 'nullable|mimes:pdf|max:5120',
@@ -178,6 +185,9 @@ class ProjectController extends Controller
                 $attach[$dept['id']] = ['amount' => $dept['amount']];
             }
             $project->departments()->sync($attach);
+
+            // sync selected services
+            $project->services()->sync($validated['services'] ?? []);
 
             // rebuild team assignments
             DB::table('project_department_teams')->where('project_id', $project->id)->delete();

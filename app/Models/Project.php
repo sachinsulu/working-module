@@ -46,4 +46,10 @@ class Project extends Model
             ->withPivot('department_id')
             ->withTimestamps();
     }
+
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'project_services')
+            ->withTimestamps();
+    }
 }
