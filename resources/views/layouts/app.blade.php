@@ -100,41 +100,87 @@
         </div>
     @endauth
 
-    <!-- Toast Notification Banner -->
-    @if (session()->has('message'))
-        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" class="fixed bottom-5 right-5 z-50 transition-all duration-500 transform hover:scale-105">
-            <div class="glass-card bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
-                <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <div>
-                    <h4 class="font-bold text-slate-100 text-sm">Success Operation</h4>
-                    <p class="text-xs text-slate-400 mt-0.5">{{ session('message') }}</p>
-                </div>
-                <button @click="show = false" class="text-slate-400 hover:text-slate-200 transition ml-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+    <!-- Toast Notification Banner (Success) -->
+    <div id="toast-success" class="fixed bottom-5 right-5 z-50 transform opacity-0 translate-y-4 pointer-events-none transition-all duration-300 ease-out hidden">
+        <div class="glass-card bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
             </div>
+            <div>
+                <h4 class="font-bold text-slate-100 text-sm">Success Operation</h4>
+                <p id="toast-success-message" class="text-xs text-slate-400 mt-0.5">{{ session('message') }}</p>
+            </div>
+            <button id="toast-success-close" class="text-slate-400 hover:text-slate-200 transition ml-2 shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
-    @endif
+    </div>
 
-    @if (session()->has('error'))
-        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="fixed bottom-5 right-5 z-50 transition-all duration-500 transform hover:scale-105">
-            <div class="glass-card bg-slate-900/90 border border-rose-500/30 rounded-2xl p-4 flex items-center gap-3 shadow-[0_0_20px_rgba(244,63,94,0.15)]">
-                <div class="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
-                <div>
-                    <h4 class="font-bold text-slate-100 text-sm">Action Blocked</h4>
-                    <p class="text-xs text-slate-400 mt-0.5">{{ session('error') }}</p>
-                </div>
-                <button @click="show = false" class="text-slate-400 hover:text-slate-200 transition ml-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+    <!-- Toast Notification Banner (Error) -->
+    <div id="toast-error" class="fixed bottom-5 right-5 z-50 transform opacity-0 translate-y-4 pointer-events-none transition-all duration-300 ease-out hidden">
+        <div class="glass-card bg-slate-900/90 border border-rose-500/30 rounded-2xl p-4 flex items-center gap-3 shadow-[0_0_20px_rgba(244,63,94,0.15)]">
+            <div class="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
+            <div>
+                <h4 class="font-bold text-slate-100 text-sm">Action Blocked</h4>
+                <p id="toast-error-message" class="text-xs text-slate-400 mt-0.5">{{ session('error') }}</p>
+            </div>
+            <button id="toast-error-close" class="text-slate-400 hover:text-slate-200 transition ml-2 shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
-    @endif
+    </div>
 
     @livewireScripts
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function setupToast(toastId, msgId, closeBtnId, defaultShow, defaultMsg, eventName, timeoutDuration) {
+                const toast = document.getElementById(toastId);
+                const msgEl = document.getElementById(msgId);
+                const closeBtn = document.getElementById(closeBtnId);
+                let timeout;
+
+                function showToast(message) {
+                    if (message) msgEl.textContent = message;
+                    toast.classList.remove('hidden');
+                    
+                    // Allow block display to render before animating
+                    setTimeout(() => {
+                        toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                        toast.classList.add('opacity-100', 'translate-y-0');
+                    }, 10);
+
+                    clearTimeout(timeout);
+                    timeout = setTimeout(hideToast, timeoutDuration);
+                }
+
+                function hideToast() {
+                    toast.classList.remove('opacity-100', 'translate-y-0');
+                    toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 300); // Matches the duration-300 class
+                }
+
+                closeBtn.addEventListener('click', hideToast);
+
+                window.addEventListener(eventName, (e) => {
+                    showToast(e.detail.message || defaultMsg);
+                });
+
+                if (defaultShow) {
+                    showToast(defaultMsg);
+                }
+            }
+
+            const hasMessage = {{ session()->has('message') ? 'true' : 'false' }};
+            setupToast('toast-success', 'toast-success-message', 'toast-success-close', hasMessage, "{!! addslashes(session('message')) !!}", 'notify', 4000);
+
+            const hasError = {{ session()->has('error') ? 'true' : 'false' }};
+            setupToast('toast-error', 'toast-error-message', 'toast-error-close', hasError, "{!! addslashes(session('error')) !!}", 'notify-error', 5000);
+        });
+    </script>
 </body>
 </html>

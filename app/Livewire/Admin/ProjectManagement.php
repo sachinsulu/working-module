@@ -41,6 +41,7 @@ class ProjectManagement extends Component
         if ($project) {
             $project->status = $project->status === 'active' ? 'inactive' : 'active';
             $project->save();
+            $this->dispatch('notify', message: "Status for {$project->project_name} updated successfully.");
         }
     }
 

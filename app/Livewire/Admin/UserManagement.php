@@ -50,6 +50,7 @@ class UserManagement extends Component
         if ($user) {
             $user->status = $user->status === 'active' ? 'inactive' : 'active';
             $user->save();
+            $this->dispatch('notify', message: "Status for {$user->name} updated successfully.");
         }
     }
 

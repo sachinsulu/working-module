@@ -40,6 +40,7 @@ class ClientManagement extends Component
         if ($client) {
             $client->status = $client->status === 'active' ? 'inactive' : 'active';
             $client->save();
+            $this->dispatch('notify', message: "Status for {$client->name} updated successfully.");
         }
     }
 
