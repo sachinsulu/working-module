@@ -11,8 +11,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-class ProjectController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class ProjectController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:projects.create', only: ['create', 'store']),
+            new Middleware('permission:projects.edit', only: ['edit', 'update']),
+            new Middleware('permission:projects.delete', only: ['destroy']),
+        ];
+    }
+
     public function index()
     {
         return view('projects.index');

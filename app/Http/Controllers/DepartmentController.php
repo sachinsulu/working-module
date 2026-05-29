@@ -7,8 +7,20 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
-class DepartmentController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class DepartmentController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:departments.create', only: ['create', 'store']),
+            new Middleware('permission:departments.edit', only: ['edit', 'update']),
+            new Middleware('permission:departments.delete', only: ['destroy']),
+        ];
+    }
+
     public function create()
     {
         $department = new Department();

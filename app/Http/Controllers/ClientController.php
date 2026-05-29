@@ -7,8 +7,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
-class ClientController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class ClientController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:clients.create', only: ['create', 'store']),
+            new Middleware('permission:clients.edit', only: ['edit', 'update']),
+            new Middleware('permission:clients.delete', only: ['destroy']),
+        ];
+    }
+
     public function index(Request $request)
     {
         $search = $request->input('search', '');

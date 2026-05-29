@@ -30,7 +30,7 @@
         @endcan
 
         <!-- Users Link -->
-        @can('manage users')
+        @can('users.view')
         <a href="{{ route('admin.users.index') }}" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition duration-300 {{ request()->routeIs('admin.users.index') ? 'bg-gradient-to-r from-indigo-500/15 to-indigo-600/5 border-l-2 border-indigo-500 text-indigo-300' : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200' }}">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
@@ -40,7 +40,7 @@
         @endcan
 
         <!-- Clients Link -->
-        @can('manage clients')
+        @can('clients.view')
         <a href="{{ route('admin.clients.index') }}" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition duration-300 {{ request()->routeIs('admin.clients.index') ? 'bg-gradient-to-r from-indigo-500/15 to-indigo-600/5 border-l-2 border-indigo-500 text-indigo-300' : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200' }}">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H2v-2a4 4 0 014-4h3m8-5a4 4 0 11-8 0 4 4 0 018 0zM16 3.13a4 4 0 010 7.75"/>
@@ -50,7 +50,7 @@
         @endcan
 
         <!-- Projects Link -->
-        @can('manage projects')
+        @can('projects.view')
         <a href="{{ route('admin.projects.index') }}" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition duration-300 {{ request()->routeIs('admin.projects.index') ? 'bg-gradient-to-r from-indigo-500/15 to-indigo-600/5 border-l-2 border-indigo-500 text-indigo-300' : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200' }}">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />
@@ -60,7 +60,7 @@
         @endcan
 
         <!-- Roles Link -->
-        @can('manage roles')
+        @can('roles.view')
         <a href="{{ route('admin.roles.index') }}" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition duration-300 {{ request()->routeIs('admin.roles.index') ? 'bg-gradient-to-r from-indigo-500/15 to-indigo-600/5 border-l-2 border-indigo-500 text-indigo-300' : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200' }}">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
@@ -70,7 +70,7 @@
         @endcan
 
         <!-- Departments Link -->
-        @can('view department stats')
+        @can('departments.view')
         <a href="{{ route('admin.departments.index') }}" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition duration-300 {{ request()->routeIs('admin.departments.index') ? 'bg-gradient-to-r from-indigo-500/15 to-indigo-600/5 border-l-2 border-indigo-500 text-indigo-300' : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200' }}">
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18" />

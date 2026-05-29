@@ -13,14 +13,23 @@ class PermissionSeeder extends Seeder
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $permissions = [
-            'view dashboard',
-            'manage users',
-            'manage clients',
-            'manage projects',
-            'manage roles',
-            'view department stats',
+        $modules = [
+            'users',
+            'clients',
+            'projects',
+            'roles',
+            'departments',
         ];
+
+        $actions = ['view', 'create', 'edit', 'delete'];
+
+        $permissions = ['dashboard.view'];
+
+        foreach ($modules as $module) {
+            foreach ($actions as $action) {
+                $permissions[] = "{$module}.{$action}";
+            }
+        }
 
         foreach ($permissions as $permissionName) {
             Permission::findOrCreate($permissionName);

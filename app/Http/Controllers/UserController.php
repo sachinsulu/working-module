@@ -9,8 +9,20 @@ use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use App\Models\Department;
 
-class UserController extends Controller
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+
+class UserController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:users.create', only: ['create', 'store']),
+            new Middleware('permission:users.edit', only: ['edit', 'update']),
+            new Middleware('permission:users.delete', only: ['destroy']),
+        ];
+    }
+
     public function create()
     {
         $user = new User();
