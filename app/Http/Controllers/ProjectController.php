@@ -19,9 +19,9 @@ class ProjectController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:projects.create', only: ['create', 'store']),
-            new Middleware('permission:projects.edit', only: ['edit', 'update']),
-            new Middleware('permission:projects.delete', only: ['destroy']),
+            new Middleware('permission:create projects', only: ['create', 'store']),
+            new Middleware('permission:edit projects', only: ['edit', 'update']),
+            new Middleware('permission:delete projects', only: ['destroy']),
         ];
     }
 

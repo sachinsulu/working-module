@@ -23,11 +23,11 @@ class PermissionSeeder extends Seeder
 
         $actions = ['view', 'create', 'edit', 'delete'];
 
-        $permissions = ['dashboard.view'];
+        $permissions = ['view dashboard'];
 
         foreach ($modules as $module) {
             foreach ($actions as $action) {
-                $permissions[] = "{$module}.{$action}";
+                $permissions[] = "{$action} {$module}";
             }
         }
 

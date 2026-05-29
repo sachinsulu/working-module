@@ -15,9 +15,9 @@ class ClientController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('permission:clients.create', only: ['create', 'store']),
-            new Middleware('permission:clients.edit', only: ['edit', 'update']),
-            new Middleware('permission:clients.delete', only: ['destroy']),
+            new Middleware('permission:create clients', only: ['create', 'store']),
+            new Middleware('permission:edit clients', only: ['edit', 'update']),
+            new Middleware('permission:delete clients', only: ['destroy']),
         ];
     }
 
