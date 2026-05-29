@@ -5,7 +5,19 @@
 @section('content')
 <div
     class="max-w-4xl mx-auto glass-card rounded-3xl border border-slate-800/80 overflow-hidden flex flex-col animate-fadeIn"
-    x-data="projectForm()"
+    x-data="formValidator({
+        project_name: @js(old('project_name', $project->project_name ?? '')),
+        client_id: @js(old('client_id', $project->client_id ?? '')),
+        project_type: @js(old('project_type', $project->project_type ?? '')),
+        status: @js(old('status', $project->status ?? 'active')),
+        selectedDepts: {},
+        initDepartments(existing) {}
+    }, {
+        project_name: [{ type: 'required' }, { type: 'max', value: 255 }],
+        client_id: [{ type: 'required' }],
+        project_type: [{ type: 'required' }, { type: 'max', value: 255 }],
+        status: [{ type: 'required' }]
+    })"
     x-init="initDepartments(@js(isset($project) ? $project->departments->map(fn($d) => ['id' => $d->id, 'amount' => $d->pivot->amount])->values() : []))"
 >
 
@@ -27,6 +39,7 @@
         method="POST"
         enctype="multipart/form-data"
         class="flex flex-col flex-1"
+        @submit="submit" novalidate
     >
         @csrf
         @if(isset($project))
@@ -47,20 +60,22 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Project Name <span class="text-indigo-400">*</span></label>
-                    <input name="project_name" type="text" required placeholder="My Awesome Project"
-                        value="{{ old('project_name', $project->project_name ?? '') }}"
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
+                    <input name="project_name" type="text" x-model="project_name" required placeholder="My Awesome Project"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                        :class="{'border-red-500': errors.project_name}" />
+                    <template x-if="errors.project_name"><p class="text-[11px] text-rose-400 font-medium mt-0.5" x-text="errors.project_name"></p></template>
                     @error('project_name') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Client <span class="text-indigo-400">*</span></label>
-                    <select name="client_id" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition">
+                    <select name="client_id" x-model="client_id" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" :class="{'border-red-500': errors.client_id}">
                         <option value="">Select client…</option>
                         @foreach($clients as $client)
-                            <option value="{{ $client->id }}" {{ old('client_id', $project->client_id ?? '') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
+                            <option value="{{ $client->id }}">{{ $client->name }}</option>
                         @endforeach
                     </select>
+                    <template x-if="errors.client_id"><p class="text-[11px] text-rose-400 font-medium mt-0.5" x-text="errors.client_id"></p></template>
                     @error('client_id') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -69,18 +84,20 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Project Type <span class="text-indigo-400">*</span></label>
-                    <input name="project_type" type="text" required placeholder="e.g. Website, Branding, App..."
-                        value="{{ old('project_type', $project->project_type ?? '') }}"
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" />
+                    <input name="project_type" type="text" x-model="project_type" required placeholder="e.g. Website, Branding, App..."
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
+                        :class="{'border-red-500': errors.project_type}" />
+                    <template x-if="errors.project_type"><p class="text-[11px] text-rose-400 font-medium mt-0.5" x-text="errors.project_type"></p></template>
                     @error('project_type') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Status</label>
-                    <select name="status" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition">
-                        <option value="active"  {{ old('status', $project->status ?? 'active') === 'active'   ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ old('status', $project->status ?? '')       === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                    <select name="status" x-model="status" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" :class="{'border-red-500': errors.status}">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
                     </select>
+                    <template x-if="errors.status"><p class="text-[11px] text-rose-400 font-medium mt-0.5" x-text="errors.status"></p></template>
                     @error('status') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
             </div>
@@ -232,6 +249,7 @@
                         $deptUsers = collect($users)->filter(function($u) use ($dept) {
                             return strtolower(trim($u->department ?? '')) === strtolower(trim($dept->title ?? ''));
                         });
+                        $canEditThisTeam = auth()->user()->can('edit teams') && (!auth()->user()->hasRole('dept head') || auth()->id() === $dept->head_user_id);
                     @endphp
                     <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden" x-show="selectedDepts[{{ $dept->id }}]" x-cloak>
                         <div class="px-4 py-2.5 bg-slate-900/60 border-b border-slate-800 flex items-center justify-between">
@@ -239,13 +257,14 @@
                         </div>
                         <div class="p-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
                             @forelse($deptUsers as $user)
-                                <label class="flex items-center gap-2 text-sm text-slate-300 cursor-pointer hover:text-white transition">
+                                <label class="flex items-center gap-2 text-sm text-slate-300 transition {{ $canEditThisTeam ? 'cursor-pointer hover:text-white' : 'cursor-not-allowed opacity-75' }}">
                                     <input
                                         type="checkbox"
                                         name="teams[{{ $dept->id }}][]"
                                         value="{{ $user->id }}"
                                         {{ in_array($user->id, $assignedUsers) ? 'checked' : '' }}
-                                        class="w-3.5 h-3.5 accent-indigo-500"
+                                        {{ !$canEditThisTeam ? 'onclick="return false;" tabindex="-1"' : '' }}
+                                        class="w-3.5 h-3.5 accent-indigo-500 {{ !$canEditThisTeam ? 'cursor-not-allowed opacity-50' : '' }}"
                                     />
                                     <span class="text-xs truncate flex-1">
                                         {{ $user->name }}
@@ -348,15 +367,6 @@
             allowInput: true
         });
     });
-
-    function projectForm() {
-        return {
-            selectedDepts: {},
-            initDepartments(existing) {
-                // Alpine handles initialization via x-init
-            }
-        };
-    }
 </script>
+@include('partials.alpine-validation')
 @endsection
-

@@ -12,7 +12,13 @@ class DepartmentManagement extends Component
 {
     public function mount()
     {
-        abort_unless(auth()->user()->can('view department stats'), 403);
+        abort_unless(
+            auth()->user()->can('view departments') ||
+            auth()->user()->can('create departments') ||
+            auth()->user()->can('edit departments') ||
+            auth()->user()->can('delete departments'),
+            403
+        );
     }
 
     public function render()

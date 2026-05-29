@@ -30,6 +30,8 @@ class PermissionSeeder extends Seeder
                 $permissions[] = "{$action} {$module}";
             }
         }
+        
+        $permissions[] = 'edit teams';
 
         foreach ($permissions as $permissionName) {
             Permission::findOrCreate($permissionName);

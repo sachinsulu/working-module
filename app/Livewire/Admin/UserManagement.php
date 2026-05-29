@@ -17,7 +17,13 @@ class UserManagement extends Component
 
     public function mount()
     {
-        abort_unless(auth()->user()->can('manage users'), 403);
+        abort_unless(
+            auth()->user()->can('view users') ||
+            auth()->user()->can('create users') ||
+            auth()->user()->can('edit users') ||
+            auth()->user()->can('delete users'),
+            403
+        );
     }
 
     #[Url(history: true)]

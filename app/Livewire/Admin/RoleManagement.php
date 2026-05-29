@@ -16,7 +16,13 @@ class RoleManagement extends Component
 
     public function mount()
     {
-        abort_unless(auth()->user()->can('manage roles'), 403);
+        abort_unless(
+            auth()->user()->can('view roles') ||
+            auth()->user()->can('create roles') ||
+            auth()->user()->can('edit roles') ||
+            auth()->user()->can('delete roles'),
+            403
+        );
     }
 
     #[Url(history: true)]

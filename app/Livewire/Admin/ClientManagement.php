@@ -15,7 +15,13 @@ class ClientManagement extends Component
 
     public function mount()
     {
-        abort_unless(auth()->user()->can('manage clients'), 403);
+        abort_unless(
+            auth()->user()->can('view clients') ||
+            auth()->user()->can('create clients') ||
+            auth()->user()->can('edit clients') ||
+            auth()->user()->can('delete clients'),
+            403
+        );
     }
 
     #[Url(history: true)]

@@ -33,7 +33,14 @@
         action="{{ $department->exists ? route('admin.departments.update', $department) : route('admin.departments.store') }}"
         method="POST"
         class="flex flex-col flex-1"
-        x-data="{ serviceRows: @js($serviceRows), serviceErrors: @js($serviceErrors) }"
+        x-data="formValidator({ 
+            title: @js(old('title', $department->title ?? '')),
+            serviceRows: @js($serviceRows), 
+            serviceErrors: @js($serviceErrors) 
+        }, {
+            title: [{ type: 'required' }, { type: 'max', value: 100 }]
+        })"
+        @submit="submit" novalidate
     >
         @csrf
         @if($department->exists)
@@ -43,9 +50,10 @@
         <div class="flex-1 p-6 space-y-5">
             <div class="space-y-1.5">
                 <label class="text-[11px] font-semibold text-slate-500 uppercase tracking-widest block">Department Title <span class="text-indigo-400">*</span></label>
-                <input name="title" type="text" required placeholder="e.g. Marketing"
-                    value="{{ old('title', $department->title) }}"
-                    class="w-full h-10 bg-slate-950 border border-slate-700 rounded-xl px-3.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/60 transition" />
+                <input name="title" type="text" x-model="title" required placeholder="e.g. Marketing"
+                    class="w-full h-10 bg-slate-950 border border-slate-700 rounded-xl px-3.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/60 transition"
+                    :class="{'border-red-500': errors.title}" />
+                <template x-if="errors.title"><p class="text-[11px] text-rose-400 font-medium mt-0.5" x-text="errors.title"></p></template>
                 @error('title') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
             </div>
 
@@ -113,4 +121,6 @@
         </div>
     </form>
 </div>
+
+@include('partials.alpine-validation')
 @endsection

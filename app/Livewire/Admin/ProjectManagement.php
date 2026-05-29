@@ -10,6 +10,17 @@ use Livewire\Attributes\Url;
 class ProjectManagement extends Component
 {
     use WithPagination;
+    public function mount()
+    {
+        abort_unless(
+            auth()->user()->can('view projects') ||
+            auth()->user()->can('create projects') ||
+            auth()->user()->can('edit projects') ||
+            auth()->user()->can('delete projects'),
+            403
+        );
+    }
+
 
     #[Url(history: true)]
     public string $search = '';
