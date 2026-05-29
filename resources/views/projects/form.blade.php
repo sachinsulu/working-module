@@ -249,7 +249,7 @@
                         $deptUsers = collect($users)->filter(function($u) use ($dept) {
                             return strtolower(trim($u->department ?? '')) === strtolower(trim($dept->title ?? ''));
                         });
-                        $canEditThisTeam = auth()->user()->can('edit teams') && (!auth()->user()->hasRole('dept head') || auth()->id() === $dept->head_user_id);
+                        $canEditThisTeam = auth()->user()->can('edit team') && (!auth()->user()->hasRole('dept head') || auth()->id() === $dept->head_user_id);
                     @endphp
                     <div class="rounded-xl border border-slate-800 bg-slate-950 overflow-hidden" x-show="selectedDepts[{{ $dept->id }}]" x-cloak>
                         <div class="px-4 py-2.5 bg-slate-900/60 border-b border-slate-800 flex items-center justify-between">

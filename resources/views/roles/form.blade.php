@@ -45,7 +45,7 @@
             @php
                 $groupedPermissions = [];
                 foreach($permissions as $perm) {
-                    if ($perm->name === 'edit teams') {
+                    if (in_array($perm->name, ['edit team', 'edit teams'])) {
                         $module = 'projects';
                     } elseif ($perm->name === 'view dashboard') {
                         $module = 'dashboard';

@@ -20,8 +20,10 @@
     @php
         if (auth()->user()->hasRole('dept head')) {
             $selectedRole = 'team';
+            $departmentVal = 'auto-assigned';
         } else {
             $selectedRole = old('roles.0', $user->roles->first()?->name ?? '');
+            $departmentVal = old('department', $user->department ?? '');
         }
     @endphp
 
@@ -37,7 +39,7 @@
             status: @js(old('status', $user->status ?? 'active')),
             address: @js(old('address', $user->address ?? '')),
             selectedRole: @js($selectedRole),
-            department: @js(old('department', $user->department ?? '')),
+            department: @js($departmentVal),
             password: '',
             password_confirmation: ''
         }, {

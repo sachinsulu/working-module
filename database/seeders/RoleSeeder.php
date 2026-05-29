@@ -38,7 +38,7 @@ class RoleSeeder extends Seeder
         ]);
 
         // Teams – permission to view dashboard
-        $teams = Role::firstOrCreate(['name' => 'teams']);
-        $teams->givePermissionTo(['view dashboard']);
+        $team = Role::firstOrCreate(['name' => 'team']);
+        $team->givePermissionTo(['view dashboard']);
     }
 }

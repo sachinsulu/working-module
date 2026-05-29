@@ -19,7 +19,6 @@ class UserSeeder extends Seeder
                 'name' => 'admin',
                 'password' => Hash::make('apanel'),
                 'employee_id' => 'EMP-001',
-                'department' => 'IT & Security',
                 'contact_no' => '+1 (555) 123-4567',
                 'address' => '742 Evergreen Terrace, Sector 7G, Springfield',
             ]
