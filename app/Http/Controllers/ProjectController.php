@@ -35,8 +35,9 @@ class ProjectController extends Controller implements HasMiddleware
         $clients = Client::orderBy('name')->get();
         $departments = Department::with(['head', 'services'])->orderBy('title')->get();
         $users = User::orderBy('name')->get();
+        $projectCategories = \App\Models\ProjectCategory::orderBy('title')->get();
 
-        return view('projects.form', compact('clients','departments','users'));
+        return view('projects.form', compact('clients','departments','users', 'projectCategories'));
     }
 
     public function store(Request $request)
@@ -140,11 +141,12 @@ class ProjectController extends Controller implements HasMiddleware
         $clients = Client::orderBy('name')->get();
         $departments = Department::with(['head', 'services'])->orderBy('title')->get();
         $users = User::orderBy('name')->get();
+        $projectCategories = \App\Models\ProjectCategory::orderBy('title')->get();
 
         // load pivots and selected teams/services
         $project->load('departments', 'teamMembers', 'services');
 
-        return view('projects.form', compact('project','clients','departments','users'));
+        return view('projects.form', compact('project','clients','departments','users', 'projectCategories'));
     }
 
     public function update(Request $request, Project $project)

@@ -7,6 +7,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectCategoryController;
 
 // Admin Dashboard
 Route::get('/', Dashboard::class)->name('dashboard');
@@ -31,3 +32,7 @@ Route::resource('departments', DepartmentController::class)->except(['index']);
 // Project Management
 Route::view('projects', 'projects.index')->name('projects.index')->middleware('permission:view projects');
 Route::resource('projects', ProjectController::class)->except(['index', 'show']);
+
+// Project Categories Management
+Route::view('project-categories', 'project-categories.index')->name('project-categories.index')->middleware('permission:view projects');
+Route::resource('project-categories', ProjectCategoryController::class)->except(['index', 'show']);

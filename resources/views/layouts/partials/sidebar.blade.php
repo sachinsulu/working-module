@@ -67,6 +67,14 @@
             </svg>
             <span>Project Management</span>
         </a>
+
+        <!-- Project Categories Link -->
+        <a href="{{ route('admin.project-categories.index') }}" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition duration-300 {{ request()->routeIs('admin.project-categories.index') ? 'bg-gradient-to-r from-indigo-500/15 to-indigo-600/5 border-l-2 border-indigo-500 text-indigo-300' : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200' }}">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" />
+            </svg>
+            <span>Project Categories</span>
+        </a>
         @endcan
 
 

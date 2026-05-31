@@ -84,9 +84,12 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Project Type <span class="text-indigo-400">*</span></label>
-                    <input name="project_type" type="text" x-model="project_type" required placeholder="e.g. Website, Branding, App..."
-                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition"
-                        :class="{'border-red-500': errors.project_type}" />
+                    <select name="project_type" x-model="project_type" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 transition" :class="{'border-red-500': errors.project_type}">
+                        <option value="">Select project type...</option>
+                        @foreach($projectCategories as $category)
+                            <option value="{{ $category->title }}">{{ $category->title }}</option>
+                        @endforeach
+                    </select>
                     <template x-if="errors.project_type"><p class="text-[11px] text-rose-400 font-medium mt-0.5" x-text="errors.project_type"></p></template>
                     @error('project_type') <p class="text-[11px] text-rose-400 font-medium mt-0.5">{{ $message }}</p> @enderror
                 </div>
